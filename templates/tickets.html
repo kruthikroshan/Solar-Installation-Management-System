@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}Service tickets{% endblock %}
+{% block body %}<div class="head"><div><h1>Service tickets</h1><p class="muted">Every complaint is tracked until the customer confirms that it works.</p></div>
+{% if session.role in ('service','admin') %}<a class="btn sun" href="{{ url_for('ticket_new') }}">New ticket</a>{% endif %}</div>
+<div class="pills"><a class="{{ 'on' if not status }}" href="{{ url_for('tickets') }}">All</a>{% for st in S.TICKET_STATUSES %}<a class="{{ 'on' if status == st }}" href="{{ url_for('tickets', status=st) }}">{{ st }}</a>{% endfor %}</div>
+<div class="card scroll"><table><tr><th>Ticket</th><th>Customer</th><th>Unit</th><th>Problem</th><th>Warranty</th><th>Technician</th><th>Status</th></tr>
+{% for t in rows %}<tr><td><a href="{{ url_for('ticket', tid=t.id) }}">{{ t.number }}</a><div class="muted">{{ t.created_at|d }}</div></td><td>{{ t.customer_name }}<div class="muted">{{ t.phone }}</div></td><td>{{ t.pname }}<div class="muted">{{ t.serial }}</div></td><td>{{ t.issue }}{% if t.fault_code %} <span class="badge">{{ t.fault_code }}</span>{% endif %}</td>
+<td>{% if t.in_warranty %}<span class="badge b-ok">Free repair</span>{% else %}<span class="badge b-bad">Chargeable</span>{% endif %}</td><td>{{ t.tech or '' }}</td><td>{{ badge(t.status) }}</td></tr>
+{% else %}<tr><td colspan="7">No tickets.</td></tr>{% endfor %}</table></div>{% endblock %}

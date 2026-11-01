@@ -1,0 +1,38 @@
+{% extends 'base.html' %}{% from '_m.html' import badge, warr with context %}{% block title %}{{ o.number }}{% endblock %}
+{% block body %}{% set stages = S.ORDER_STAGES %}{% set cur = stages.index(o.status) %}
+<div class="head"><div><h1>{{ o.number }} {{ badge(o.status) }}</h1><p class="muted">{{ o.name }} &middot; {{ o.phone }} &middot; {{ o.address }}<br>{{ o.kw }} kW {{ o.system_type }} &middot; installer {{ o.installer }} on {{ o.install_date }}</p></div>
+<div class="inline noprint">{% if session.role in ('sales','admin') %}<a class="btn ghost" href="{{ url_for('quote', qid=o.quote_id) }}">Quotation</a>{% endif %}
+{% if session.role == 'installer' and o.status == 'delivered' %}<a class="btn sun" href="{{ url_for('job', oid=o.id) }}">Complete installation</a>{% endif %}</div></div>
+<div class="steps">{% for st in stages %}<div class="{{ 'done' if loop.index0 < cur else ('now' if loop.index0 == cur) }}">{{ st|capitalize }}</div>{% endfor %}</div>
+
+<div class="card scroll"><h2>Parts list (BOM)</h2><table><tr><th>Item</th><th class="n">Qty</th><th class="n">Rate</th>{% if session.role in FINANCE %}<th class="n">Cost</th>{% endif %}<th>Tracking</th></tr>
+{% for l in lines %}<tr><td>{{ l.name }}</td><td class="n">{{ '%g'|format(l.qty) }} {{ l.unit }}</td><td class="n">{{ l.unit_price|inr }}</td>{% if session.role in FINANCE %}<td class="n">{{ l.unit_cost|inr }}</td>{% endif %}
+<td>{% if l.tracked %}<span class="badge b-blue">Serial scan</span>{% elif l.is_service %}<span class="badge">Service</span>{% else %}<span class="badge">Quantity</span>{% endif %}
+{% if suggest.get(l.product_id) %}<div class="muted">Pick: {{ suggest[l.product_id]|join(', ') }}</div>{% endif %}</td></tr>{% endfor %}</table></div>
+
+{% if o.status == 'confirmed' and session.role in ('warehouse','admin') %}
+<div class="card"><h2>Scan and dispatch</h2><p class="muted">Scan or type every serial-tracked unit loaded on the truck (one per line). The system checks the right items and quantities and links each serial to this customer.</p>
+<form method="post" action="{{ url_for('order_dispatch', oid=o.id) }}"><textarea id="serials" name="serials" placeholder="INV-00001&#10;BAT-00001" required></textarea>
+<video id="scanVideo" playsinline style="display:none;width:100%;max-width:360px;margin-top:.5rem"></video>
+<p class="inline"><button class="sun btn">Confirm dispatch</button><button type="button" id="scanBtn" data-target="serials" class="ghost btn">Scan with camera</button></p></form></div>{% endif %}
+{% if o.status in ('dispatched',) and session.role in ('warehouse','installer','admin') %}
+<form method="post" action="{{ url_for('order_deliver', oid=o.id) }}" class="card inline noprint"><div><h2>Delivered to the customer's site?</h2><p class="muted">Marking delivery starts the warranty clock automatically for every serial number.</p></div><button class="sun btn">Mark delivered</button></form>{% endif %}
+
+{% if serials %}<div class="card scroll"><h2>Serial numbers and warranty</h2><table><tr><th>Item</th><th>Serial</th><th>Status</th><th>Warranty</th></tr>
+{% for s in serials %}<tr><td>{{ s.pname }}</td><td><a href="{{ url_for('qr', serial=s.serial) }}" target="_blank">{{ s.serial }}</a></td><td>{{ badge(s.status) }}</td><td>{{ warr(s) }}</td></tr>{% endfor %}</table></div>{% endif %}
+
+{% if inst %}<div class="card"><h2>Installation proof</h2><p>Completed by {{ inst.tech }} &middot; {{ inst.start_time|dt }} to {{ inst.end_time|dt }} ({{ '%.1f'|format(hours) }} h) &middot; {{ inst.system_kw }} kW installed &middot; power test {{ inst.power_test_kw }} kW</p><p>{{ inst.notes }}</p>
+<div class="photos">{% for p in photos %}<a href="{{ url_for('uploads', fn=p.filename) }}" target="_blank"><img src="{{ url_for('uploads', fn=p.filename) }}" alt="Finished roof"></a>{% endfor %}</div>
+<p class="mt">Accepted by <b>{{ inst.signer }}</b><br><img src="{{ inst.signature }}" alt="Customer signature" style="max-width:280px;border:1px solid var(--line);background:#fff"></p></div>{% endif %}
+
+{% if session.role in ('accountant','director','admin','sales') %}<div class="row c2">
+<div class="card"><h2>Invoices and payments</h2><table><tr><th>Invoice</th><th class="n">Amount</th><th class="n">Paid</th><th>Status</th></tr>
+{% for i in invoices %}<tr><td><a href="{{ url_for('invoice', iid=i.id) }}">{{ i.number }}</a> <span class="muted">{{ i.kind }}</span></td><td class="n">{{ i.amount|inr }}</td><td class="n">{{ i.paid|inr }}</td><td>{{ badge(i.status) }}</td></tr>
+{% if session.role in ('accountant','admin') and i.status != 'Paid' %}<tr><td colspan="4"><form method="post" action="{{ url_for('add_payment') }}" class="inline"><input type="hidden" name="invoice_id" value="{{ i.id }}"><div><input name="amount" type="number" placeholder="Amount received" required max="{{ (i.amount - i.paid)|int }}"></div><div><select name="method"><option>UPI</option><option>Bank transfer</option><option>Cheque</option><option>Cash</option></select></div><div><input name="ref" placeholder="Reference"></div><button class="sm">Record payment</button></form></td></tr>{% endif %}{% endfor %}</table></div>
+<div class="card"><h2>Government subsidy</h2>{% if o.subsidy_status == 'Not applicable' %}<p class="muted">The customer did not ask for a subsidy.</p>{% else %}<p>{{ badge(o.subsidy_status) }} {{ o.subsidy_amount|inr }}</p>{% endif %}
+{% if session.role in ('accountant','sales','admin') %}<form method="post" action="{{ url_for('order_subsidy', oid=o.id) }}" class="inline"><div><select name="status">{% for st in S.SUBSIDY_STATUSES %}<option {{ 'selected' if st == o.subsidy_status }}>{{ st }}</option>{% endfor %}</select></div><div><input name="amount" type="number" value="{{ o.subsidy_amount|int }}"></div><button class="sm">Update</button></form>{% endif %}</div></div>{% endif %}
+
+{% if session.role in FINANCE %}<div class="card"><h2>Job profitability</h2><table><tr><th>Revenue</th><th>Material cost</th><th>Technician labour</th><th>Other costs</th><th>Profit</th><th>Margin</th><th>Cash still due</th></tr>
+<tr><td>{{ fin.revenue|inr }}</td><td>{{ fin.material|inr }}</td><td>{{ fin.labour|inr }}{% if not inst %} <span class="muted">(pending)</span>{% endif %}</td><td>{{ fin.other|inr }}</td><td><b style="color:{{ 'var(--ok)' if fin.profit >= 0 else 'var(--bad)' }}">{{ fin.profit|inr }}</b></td><td>{{ '%.1f'|format(fin.margin) }}%</td><td>{{ fin.due|inr }}</td></tr></table></div>{% endif %}
+
+{% if tickets %}<div class="card"><h2>Service history</h2><table>{% for t in tickets %}<tr><td><a href="{{ url_for('ticket', tid=t.id) }}">{{ t.number }}</a></td><td>{{ t.issue }}</td><td>{{ badge(t.status) }}</td></tr>{% endfor %}</table></div>{% endif %}{% endblock %}

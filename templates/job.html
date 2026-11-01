@@ -1,0 +1,14 @@
+{% extends 'base.html' %}{% block title %}Complete job{% endblock %}
+{% block body %}<div class="head"><div><h1>Complete installation: {{ o.name }}</h1><p class="muted">{{ o.address }} &middot; {{ o.number }} &middot; {{ o.kw }} kW {{ o.system_type }}</p></div><a class="btn ghost" href="{{ url_for('jobs') }}">Back</a></div>
+{% if o.status != 'delivered' %}<div class="flash err">This job cannot be completed yet: the materials have not been marked as delivered ({{ o.status }}).</div>{% else %}
+<form method="post" enctype="multipart/form-data"><div class="card"><h2>Work record</h2><div class="row c3">
+<div><label>Start time</label><input type="datetime-local" name="start" required value="{{ f.get('start','') }}"></div>
+<div><label>Finish time</label><input type="datetime-local" name="end" required value="{{ f.get('end','') }}"></div>
+<div><label>System size installed (kW)</label><input type="number" step="0.1" name="system_kw" value="{{ f.get('system_kw', o.kw) }}" required></div>
+<div><label>Power test: generating now (kW)</label><input type="number" step="0.01" name="power_kw" required value="{{ f.get('power_kw','') }}"></div></div>
+<label>Notes (earthing value, anything the customer should know)</label><textarea name="notes">{{ f.get('notes','') }}</textarea>
+<p class="muted">Units installed: {% for s in serials %}{{ s.name }} <b>{{ s.serial }}</b>{{ '; ' if not loop.last }}{% endfor %}</p></div>
+<div class="card"><h2>Photos of the finished roof</h2><input type="file" name="photos" accept="image/*" capture="environment" multiple required></div>
+<div class="card"><h2>Customer acceptance</h2><label>Customer name</label><input name="signer" value="{{ f.get('signer', o.name) }}" required>
+<label>Sign below</label><canvas id="sig" class="sig"></canvas><input type="hidden" name="signature" id="signature"><p><button type="button" id="sigClear" class="ghost btn sm">Clear signature</button></p></div>
+<p><button class="sun btn">Submit completion</button></p></form>{% endif %}{% endblock %}

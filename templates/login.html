@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block title %}Sign in{% endblock %}
+{% block body %}<div class="login">
+<p class="pub-brand">&#9728; SunPower <span>Solutions</span></p>
+<div class="card"><h1>Sign in</h1>
+<form method="post"><label for="email">Email</label><input id="email" name="email" type="email" required autofocus>
+<label for="password">Password</label><input id="password" name="password" type="password" required>
+<p><button>Sign in</button></p></form>
+<p class="muted">Customer? <a href="{{ url_for('enquiry') }}">Request a solar quote</a> or <a href="{{ url_for('warranty_lookup') }}">check a warranty</a>.</p></div>
+<div class="card"><h2>Demo accounts</h2><p class="muted">Password for all: <b>{{ pw }}</b>. Click a row to fill the email.</p>
+<table class="demo">{% for n, e, r, _ in demo %}<tr data-email="{{ e }}"><td>{{ ROLES[r] }}</td><td>{{ n }}</td><td class="muted">{{ e }}</td></tr>{% endfor %}</table></div></div>{% endblock %}

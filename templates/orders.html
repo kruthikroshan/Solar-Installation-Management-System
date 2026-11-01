@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}Orders{% endblock %}
+{% block body %}<div class="head"><div><h1>Orders</h1><p class="muted">Confirmed jobs, from packing to installation.</p></div>
+<form method="get" class="inline"><input name="q" value="{{ s }}" placeholder="Order, name or phone"><button class="sm">Search</button></form></div>
+<div class="pills"><a class="{{ 'on' if not status }}" href="{{ url_for('orders') }}">All</a>{% for st in S.ORDER_STAGES %}<a class="{{ 'on' if status == st }}" href="{{ url_for('orders', status=st) }}">{{ st|capitalize }}</a>{% endfor %}</div>
+<div class="card scroll"><table><tr><th>Order</th><th>Customer</th><th>System</th><th>Installer</th><th>Install date</th><th>Status</th><th class="n">Total</th><th class="n">Due</th></tr>
+{% for o in rows %}<tr><td><a href="{{ url_for('order', oid=o.id) }}">{{ o.number }}</a></td><td>{{ o.name }}<div class="muted">{{ o.phone }}</div></td><td>{{ o.kw }} kW {{ o.system_type }}</td><td>{{ o.installer }}</td><td>{{ o.install_date }}</td><td>{{ badge(o.status) }}</td><td class="n">{{ o.total|inr }}</td><td class="n">{{ due[o.id]|inr }}</td></tr>
+{% else %}<tr><td colspan="8">No orders yet.</td></tr>{% endfor %}</table></div>{% endblock %}

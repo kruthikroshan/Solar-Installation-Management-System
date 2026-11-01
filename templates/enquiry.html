@@ -1,0 +1,14 @@
+{% extends 'base.html' %}{% block title %}Request a solar quote{% endblock %}
+{% block body %}<div class="public"><p class="pub-brand">&#9728; SunPower <span>Solutions</span></p>
+<div class="card"><h1>Request a rooftop solar quote</h1>
+<p class="muted">Tell us about your home or factory. Our sales team will call you to check your roof space and electricity bill.</p>
+<form method="post">
+<label for="name">Your name</label><input id="name" name="name" required value="{{ f.get('name','') }}">
+<div class="inline"><div><label for="phone">Phone</label><input id="phone" name="phone" inputmode="tel" required value="{{ f.get('phone','') }}"></div>
+<div><label for="email">Email (optional)</label><input id="email" name="email" type="email" value="{{ f.get('email','') }}"></div></div>
+<label for="address">Installation address</label><textarea id="address" name="address" required>{{ f.get('address','') }}</textarea>
+<div class="inline"><div><label for="kw">System size</label><select id="kw" name="kw">{% for k in range(1,6) %}<option value="{{ k }}" {{ 'selected' if f.get('kw', '3')|string == k|string }}>{{ k }} kW</option>{% endfor %}</select></div>
+<div><label for="st">System type</label><select id="st" name="system_type"><option>On-Grid</option><option {{ 'selected' if f.get('system_type') == 'Off-Grid' }}>Off-Grid</option></select></div></div>
+<label class="chk"><input type="checkbox" name="subsidy" value="1" {{ 'checked' if f.get('subsidy') }}> I want to apply for the government subsidy</label>
+<label for="message">Anything else we should know?</label><textarea id="message" name="message">{{ f.get('message','') }}</textarea>
+<p><button class="sun btn">Send my enquiry</button></p></form></div></div>{% endblock %}

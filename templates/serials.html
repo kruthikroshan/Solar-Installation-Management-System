@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% from '_m.html' import badge, warr with context %}{% block title %}Serial register{% endblock %}
+{% block body %}<div class="head"><div><h1>Serial number register</h1><p class="muted">Which unit went to which customer, and when its warranty ends.</p></div>
+<form method="get" class="inline"><div><input name="q" value="{{ s }}" placeholder="Serial, customer, order, product"></div><div><select name="status"><option value="">Any status</option>{% for st in ['in_stock','dispatched','installed','faulty'] %}<option {{ 'selected' if st == status }}>{{ st }}</option>{% endfor %}</select></div><button class="sm">Search</button></form></div>
+<div class="card scroll"><table><tr><th>Serial</th><th>Item</th><th>Status</th><th>Customer</th><th>Order</th><th>Warranty</th></tr>
+{% for r in rows %}<tr><td>{{ r.serial }}</td><td>{{ r.pname }}</td><td>{{ badge(r.status) }}</td><td>{{ r.cname or '' }}</td><td>{{ r.onum or '' }}</td><td>{{ warr(r) }}</td></tr>{% else %}<tr><td colspan="6">No serial numbers match.</td></tr>{% endfor %}</table></div>{% endblock %}

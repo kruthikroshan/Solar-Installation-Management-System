@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}Survey{% endblock %}
+{% block body %}<div class="head"><div><h1>Survey: {{ s.name }} {{ badge(s.status) }}</h1><p class="muted">{{ s.address }} &middot; <a href="tel:{{ s.phone }}">{{ s.phone }}</a><br>{{ s.kw }} kW {{ s.system_type }} &middot; customer reports {{ s.claimed_shadow|int if s.claimed_shadow else '?' }} sq m free, bill {{ s.monthly_bill|inr if s.monthly_bill else '?' }}/month</p>{% if s.call_notes %}<p>Sales notes: {{ s.call_notes }}</p>{% endif %}</div><a class="btn ghost" href="{{ url_for('surveys') }}">Back</a></div>
+<div class="card">{% if s.status == 'Scheduled' and mine %}
+<form method="post"><div class="row c3">
+<div><label>Roof direction</label><select name="direction">{% for d in ['South','South-East','South-West','East','West','North','North-East','North-West','Flat roof'] %}<option>{{ d }}</option>{% endfor %}</select></div>
+<div><label>Roof tilt (degrees)</label><input name="tilt" type="number" step="0.5" required></div>
+<div><label>Cable distance, roof to meter (m)</label><input name="cable" type="number" step="0.5" required></div>
+<div><label>Shadow-free area measured (sq m)</label><input name="shadow" type="number" step="0.5" required value="{{ (s.kw * 9) }}"></div></div>
+<label>Notes (water tanks, trees, parapet, obstacles)</label><textarea name="notes"></textarea>
+<div class="inline"><button name="decision" value="approve" class="sun btn">Approve site for installation</button><button name="decision" value="reject" class="danger" data-x>Reject site</button></div></form>
+{% elif s.status != 'Scheduled' %}<table><tr><th>Roof direction</th><td>{{ s.roof_direction }}</td></tr><tr><th>Tilt</th><td>{{ s.tilt|round(1) }}&deg;</td></tr><tr><th>Cable distance</th><td>{{ s.cable_distance|round(1) }} m</td></tr><tr><th>Shadow-free area</th><td>{{ s.shadow_area|round(1) }} sq m</td></tr><tr><th>Notes</th><td>{{ s.notes }}</td></tr><tr><th>Completed</th><td>{{ s.done_at|dt }}</td></tr></table>
+{% else %}<p>Waiting for the assigned survey technician.</p>{% endif %}</div>{% endblock %}

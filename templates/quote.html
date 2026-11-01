@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}{{ qt.number }}{% endblock %}
+{% block body %}<div class="head"><div><h1>Quotation {{ qt.number }} {{ badge(qt.status) }}</h1><p class="muted">{{ qt.pkg }} for <a href="{{ url_for('lead', lid=qt.lead_id) }}">{{ qt.name }}</a> &middot; {{ qt.address }}</p></div>
+<div class="noprint"><button onclick="window.print()" class="ghost btn">Print</button></div></div>
+<div class="card scroll"><h2>Bill of materials</h2><table><tr><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Rate</th><th class="n">Amount</th></tr>
+{% for l in lines %}<tr><td>{{ l.name }}</td><td class="n">{{ '%g'|format(l.qty) }}</td><td>{{ l.unit }}</td><td class="n">{{ l.unit_price|inr }}</td><td class="n">{{ (l.qty*l.unit_price)|inr }}</td></tr>{% endfor %}
+<tr><td colspan="4" class="n">Subtotal</td><td class="n">{{ sub|inr }}</td></tr>
+{% if qt.discount %}<tr><td colspan="4" class="n">Discount</td><td class="n">-{{ qt.discount|inr }}</td></tr>{% endif %}
+<tr><th colspan="4" class="n">Total payable</th><th class="n">{{ total|inr }}</th></tr>
+{% if qt.subsidy_amount %}<tr><td colspan="4" class="n muted">Expected government subsidy (credited to customer)</td><td class="n muted">{{ qt.subsidy_amount|inr }}</td></tr>
+<tr><td colspan="4" class="n muted">Effective cost after subsidy</td><td class="n muted">{{ (total - qt.subsidy_amount)|inr }}</td></tr>{% endif %}</table></div>
+{% if order %}<p><a class="btn" href="{{ url_for('order', oid=order.id) }}">Open order {{ order.number }}</a></p>
+{% elif session.role in ('sales','admin') %}
+<div class="row c2 noprint"><div class="card"><h2>Customer says yes: confirm the order</h2>
+<form method="post" action="{{ url_for('quote_confirm', qid=qt.id) }}">
+<div class="inline"><div><label>Advance received (₹)</label><input name="advance" type="number" min="1" max="{{ total|int }}" value="{{ (total/2)|int }}" required></div>
+<div><label>Method</label><select name="method"><option>UPI</option><option>Bank transfer</option><option>Cheque</option><option>Cash</option></select></div></div>
+<label>Reference / UTR</label><input name="ref">
+<div class="inline"><div><label>Installation technician</label><select name="installer_id">{% for u in installers %}<option value="{{ u.id }}">{{ u.name }}</option>{% endfor %}</select></div>
+<div><label>Installation date</label><input type="date" name="install_date" required></div></div>
+<p><button class="sun btn">Confirm order and notify warehouse</button></p></form></div>
+<div class="card"><h2>Quotation status</h2><form method="post" action="{{ url_for('quote_status', qid=qt.id) }}" class="inline"><button name="status" value="Sent" class="ghost btn">Mark as sent</button><button name="status" value="Rejected" class="danger">Customer declined</button></form>
+<p class="muted">Confirming the order creates the invoice, records the advance, reserves the stock list for the warehouse and puts the job on the installer's schedule.</p></div></div>{% endif %}{% endblock %}

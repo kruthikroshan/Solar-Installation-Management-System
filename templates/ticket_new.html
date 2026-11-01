@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% from '_m.html' import warr with context %}{% block title %}New ticket{% endblock %}
+{% block body %}<div class="head"><div><h1>New service ticket</h1><p class="muted">Find the customer by phone, name, order number or the serial number on the faulty unit.</p></div><a class="btn ghost" href="{{ url_for('tickets') }}">Back</a></div>
+<div class="card"><form method="get" class="inline"><div><label>Search</label><input name="q" value="{{ s }}" placeholder="Phone, name, order or serial" autofocus></div><button>Find</button></form></div>
+{% if s %}<form method="post" class="card scroll"><input type="hidden" name="q" value="{{ s }}"><h2>Select the faulty unit</h2>
+<table><tr><th></th><th>Customer</th><th>Unit and serial</th><th>Order</th><th>Warranty</th></tr>
+{% for r in found %}<tr><td><input type="radio" name="serial_id" value="{{ r.id }}" required></td><td>{{ r.cname }}<div class="muted">{{ r.phone }} &middot; {{ r.address }}</div></td><td>{{ r.pname }}<div class="muted">{{ r.serial }}</div></td><td>{{ r.onum }}</td><td>{{ warr(r) }}</td></tr>
+{% else %}<tr><td colspan="5">Nothing found. Check the spelling or try the serial number.</td></tr>{% endfor %}</table>
+{% if found %}<div class="row c2"><div><label>What is the customer reporting?</label><textarea name="issue" required>{{ f.get('issue','') }}</textarea></div><div><label>Fault code on display (if any)</label><input name="fault_code" value="{{ f.get('fault_code','') }}"></div></div><p><button class="sun btn">Create ticket</button></p>{% endif %}</form>{% endif %}{% endblock %}

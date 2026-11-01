@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}{{ l.name }}{% endblock %}
+{% block body %}<div class="head"><div><h1>{{ l.name }} {{ badge(l.status) }}</h1><p class="muted">{{ l.phone }} &middot; {{ l.address }}<br>{{ l.kw }} kW {{ l.system_type }}{% if l.subsidy %} &middot; wants subsidy{% endif %} &middot; via {{ l.source }} &middot; owner {{ l.owner }}</p>{% if l.message %}<p>&ldquo;{{ l.message }}&rdquo;</p>{% endif %}</div>
+<a class="btn ghost" href="{{ url_for('leads') }}">All leads</a></div>
+<div class="steps">{% set order_ = ['New','Qualified','Survey Scheduled','Survey Approved','Quoted','Won'] %}{% set cur = order_.index(l.status) if l.status in order_ else (1 if l.status == 'Contacted' else -1) %}
+{% for st in order_ %}<div class="{{ 'done' if loop.index0 < cur else ('now' if loop.index0 == cur) }}">{{ st }}</div>{% endfor %}</div>
+<div class="row c2">
+<div class="card"><h2>1. Phone check</h2>
+<form method="post" action="{{ url_for('lead_qualify', lid=l.id) }}">
+<div class="inline"><div><label>Shadow-free roof area (sq m)</label><input name="shadow_area" type="number" step="0.5" value="{{ l.shadow_area or '' }}"></div>
+<div><label>Monthly electricity bill (₹)</label><input name="monthly_bill" type="number" value="{{ l.monthly_bill|int if l.monthly_bill else '' }}"></div></div>
+<label class="chk"><input type="checkbox" name="grid_ok" value="1" {{ 'checked' if l.grid_ok }}> Grid connection is suitable</label>
+<label>Call notes</label><textarea name="call_notes">{{ l.call_notes or '' }}</textarea>
+<div class="inline"><div><label>Next follow-up</label><input type="date" name="followup_date" value="{{ l.followup_date or '' }}"></div>
+<div><label>Outcome</label><select name="outcome"><option value="Contacted">Spoke, follow up later</option><option value="Qualified" {{ 'selected' if l.status == 'Qualified' }}>Qualified: send a surveyor</option><option value="Not Suitable">Not suitable</option></select></div></div>
+{% if session.role in ('sales','admin') %}<p><button>Save call result</button></p>{% endif %}</form>
+{% if l.shadow_area %}<p class="muted">Rule of thumb: about 9 sq m of shadow-free roof per kW. This customer asked for {{ l.kw }} kW and has {{ l.shadow_area|int }} sq m.</p>{% endif %}</div>
+
+<div class="card"><h2>2. Site survey</h2>
+{% if survey %}<p>{{ badge(survey.status) }} {{ survey.tech }} on {{ survey.scheduled_date }}</p>
+{% if survey.status != 'Scheduled' %}<table><tr><th>Roof direction</th><td>{{ survey.roof_direction }}</td></tr><tr><th>Tilt</th><td>{{ survey.tilt|round(1) }}&deg;</td></tr><tr><th>Cable distance</th><td>{{ survey.cable_distance|round(1) }} m</td></tr><tr><th>Shadow-free area</th><td>{{ survey.shadow_area|round(1) }} sq m</td></tr><tr><th>Notes</th><td>{{ survey.notes }}</td></tr></table>{% endif %}{% endif %}
+{% if l.status in ('Qualified','Survey Scheduled','Survey Rejected') and session.role in ('sales','admin') %}
+<form method="post" action="{{ url_for('lead_survey', lid=l.id) }}"><div class="inline"><div><label>Survey technician</label><select name="tech_id">{% for t in techs %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select></div>
+<div><label>Visit date</label><input type="date" name="when" value="{{ today }}" required></div></div><p><button>{{ 'Reschedule' if survey and survey.status == 'Scheduled' else 'Book survey' }}</button></p></form>
+{% elif not survey %}<p class="muted">Qualify the enquiry first. A survey can then be booked.</p>{% endif %}</div></div>
+
+<div class="card"><h2>3. Quotation</h2>
+{% if l.status in ('Survey Approved','Quoted') and session.role in ('sales','admin') %}
+<form method="post" action="{{ url_for('lead_quote', lid=l.id) }}"><div class="row c3">
+<div><label>Package template</label><select name="package_id">{% for p in packages %}<option value="{{ p.id }}" {{ 'selected' if p.kw == l.kw and p.ptype == l.system_type }}>{{ p.name }} ({{ p.price|inr }})</option>{% endfor %}</select></div>
+<div><label>Discount (₹)</label><input name="discount" type="number" min="0" value="0"></div>
+<div><label>Expected subsidy (₹)</label><input name="subsidy_amount" type="number" min="0" value="{{ S.subsidy_for(l.kw) if l.subsidy else 0 }}"></div></div>
+<p><button class="sun btn">Create quotation with parts list</button></p></form>
+{% elif l.status not in ('Won','Quoted') %}<p class="muted">A quotation can only be prepared after the site survey is approved.</p>{% endif %}
+{% if quotes %}<table><tr><th>Number</th><th>Created</th><th>Status</th><th></th></tr>{% for qt in quotes %}<tr><td>{{ qt.number }}</td><td>{{ qt.created_at|d }}</td><td>{{ badge(qt.status) }}</td><td><a href="{{ url_for('quote', qid=qt.id) }}">Open</a></td></tr>{% endfor %}</table>{% endif %}
+{% if order %}<p><a class="btn" href="{{ url_for('order', oid=order.id) }}">Open order {{ order.number }}</a></p>{% endif %}</div>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}My jobs{% endblock %}
+{% block body %}<div class="head"><div><h1>My installation jobs</h1><p class="muted">Jobs appear here the moment an order is confirmed. No phone call needed.</p></div></div>
+<div class="row c2">{% for o in rows %}<div class="card"><h2>{{ o.name }} {{ badge(o.status) }}</h2><p>{{ o.address }}<br><a href="tel:{{ o.phone }}">{{ o.phone }}</a><br>{{ o.kw }} kW {{ o.system_type }} &middot; <b>{{ o.install_date }}</b> &middot; {{ o.number }}</p>
+<p class="muted">{% if o.status == 'confirmed' %}Waiting for the warehouse to dispatch.{% elif o.status == 'dispatched' %}Materials are on the way.{% elif o.status == 'delivered' %}Materials are on site. Ready to install.{% else %}Completed.{% endif %}</p>
+<a class="btn sm ghost" href="{{ url_for('order', oid=o.id) }}">Parts and serials</a> {% if o.status == 'delivered' %}<a class="btn sm sun" href="{{ url_for('job', oid=o.id) }}">Complete job</a>{% endif %}
+{% if o.status == 'dispatched' %}<form method="post" action="{{ url_for('order_deliver', oid=o.id) }}" style="display:inline"><button class="sm">Mark delivered</button></form>{% endif %}</div>
+{% else %}<div class="card">No jobs assigned.</div>{% endfor %}</div>
+{% if tickets %}<h2 class="mt">My service calls</h2><div class="card scroll"><table>{% for t in tickets %}<tr><td><a href="{{ url_for('ticket', tid=t.id) }}">{{ t.number }}</a></td><td>{{ t.customer_name }}<div class="muted">{{ t.address }}</div></td><td>{{ t.issue }}</td><td>{{ badge(t.status) }}</td></tr>{% endfor %}</table></div>{% endif %}{% endblock %}

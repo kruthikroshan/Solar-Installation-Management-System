@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}{{ i.number }}{% endblock %}
+{% block body %}<div class="head"><div><h1>Tax invoice {{ i.number }} {{ badge(i.status) }}</h1><p class="muted">SunPower Solutions &middot; Hyderabad<br>Date {{ i.date }} &middot; Order {{ i.onum }}</p></div><button class="ghost btn noprint" onclick="window.print()">Print</button></div>
+<div class="card"><p><b>{{ i.name }}</b><br>{{ i.address }}<br>{{ i.phone }}</p>
+<table><tr><th>Description</th><th class="n">Qty</th><th class="n">Rate</th><th class="n">Amount</th></tr>{% for n, q, r in lines %}<tr><td>{{ n }}</td><td class="n">{{ '%g'|format(q) }}</td><td class="n">{{ r|inr }}</td><td class="n">{{ (q*r)|inr }}</td></tr>{% endfor %}
+{% if disc %}<tr><td colspan="3" class="n">Discount</td><td class="n">-{{ disc|inr }}</td></tr>{% endif %}
+<tr><th colspan="3" class="n">Invoice total</th><th class="n">{{ i.amount|inr }}</th></tr><tr><td colspan="3" class="n">Received</td><td class="n">{{ paid|inr }}</td></tr><tr><th colspan="3" class="n">Balance due</th><th class="n">{{ (i.amount - paid)|inr }}</th></tr></table>
+{% if pays %}<h3 class="mt">Payments</h3><table>{% for p in pays %}<tr><td>{{ p.date }}</td><td>{{ p.method }} {{ p.ref }}</td><td class="n">{{ p.amount|inr }}</td></tr>{% endfor %}</table>{% endif %}</div>{% endblock %}

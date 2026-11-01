@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}Leads{% endblock %}
+{% block body %}<div class="head"><div><h1>Enquiries and leads</h1><p class="muted">Every web form, call and WhatsApp enquiry lands here and is assigned to a sales executive.</p></div>
+<form method="get" class="inline"><input name="q" value="{{ s }}" placeholder="Search name, phone, address"><button class="sm">Search</button></form></div>
+<div class="pills"><a class="{{ 'on' if not status }}" href="{{ url_for('leads') }}">All</a>{% for st in S.LEAD_STATUSES %}{% if counts.get(st) %}<a class="{{ 'on' if status == st }}" href="{{ url_for('leads', status=st) }}">{{ st }} ({{ counts[st] }})</a>{% endif %}{% endfor %}</div>
+<div class="card scroll"><table><tr><th>Customer</th><th>Phone</th><th>Request</th><th>Source</th><th>Owner</th><th>Status</th><th>Received</th></tr>
+{% for l in rows %}<tr><td><a href="{{ url_for('lead', lid=l.id) }}">{{ l.name }}</a><div class="muted">{{ l.address }}</div></td><td>{{ l.phone }}</td>
+<td>{{ l.kw }} kW {{ l.system_type }}{% if l.subsidy %} <span class="badge b-blue">Subsidy</span>{% endif %}</td><td>{{ l.source }}</td><td>{{ l.owner }}</td><td>{{ badge(l.status) }}</td><td class="muted">{{ l.created_at|dt }}</td></tr>
+{% else %}<tr><td colspan="7">No enquiries match. Add one below.</td></tr>{% endfor %}</table></div>
+{% if session.role in ('sales','admin') %}<div class="card"><h2>Add an enquiry from a call or WhatsApp</h2>
+<form method="post" action="{{ url_for('lead_new') }}"><div class="row c3">
+<div><label>Name</label><input name="name" required></div><div><label>Phone</label><input name="phone" required></div><div><label>Email</label><input name="email" type="email"></div>
+<div><label>Address</label><input name="address" required></div>
+<div><label>Size</label><select name="kw">{% for k in range(1,6) %}<option value="{{ k }}" {{ 'selected' if k == 3 }}>{{ k }} kW</option>{% endfor %}</select></div>
+<div><label>Type</label><select name="system_type"><option>On-Grid</option><option>Off-Grid</option></select></div>
+<div><label>Source</label><select name="source"><option>Phone call</option><option>WhatsApp</option><option>Walk-in</option><option>Referral</option></select></div>
+<div><label>Notes</label><input name="message"></div><div><label class="chk" style="margin-top:2rem"><input type="checkbox" name="subsidy" value="1">Wants subsidy</label></div></div>
+<p><button>Add enquiry</button></p></form></div>{% endif %}{% endblock %}

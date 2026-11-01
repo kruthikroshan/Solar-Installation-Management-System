@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% from '_m.html' import warr with context %}{% block title %}Warranty check{% endblock %}
+{% block body %}<div class="public"><p class="pub-brand">&#9728; SunPower <span>Solutions</span></p>
+<div class="card"><h1>Check your warranty</h1><p class="muted">Enter the serial number printed on your inverter, battery, charge controller or panel.</p>
+<form method="post" class="inline"><div><label for="serial">Serial number</label><input id="serial" name="serial" value="{{ code }}" placeholder="INV-00012" required></div><button>Check</button></form>
+{% if s %}<table class="mt"><tr><th>Product</th><td>{{ s.pname }}</td></tr><tr><th>Serial</th><td>{{ s.serial }}</td></tr>
+<tr><th>Warranty</th><td>{{ warr(s) }}</td></tr>{% if s.warranty_start %}<tr><th>Started</th><td>{{ s.warranty_start }}</td></tr>{% endif %}</table>{% endif %}</div></div>{% endblock %}

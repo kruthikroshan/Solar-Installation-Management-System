@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}Warehouse{% endblock %}
+{% block body %}<div class="head"><div><h1>Warehouse</h1><p class="muted">Stock on hand, jobs to pack and trucks on the road.</p></div>
+<div class="inline noprint"><a class="btn ghost" href="{{ url_for('serials') }}">Serial register</a>{% if session.role in ('warehouse','admin') %}<a class="btn ghost" href="{{ url_for('labels') }}">QR labels</a>{% endif %}</div></div>
+<div class="row c2"><div class="card"><h2>To pack and dispatch ({{ pending|length }})</h2><table>{% for o in pending %}<tr><td><a href="{{ url_for('order', oid=o.id) }}">{{ o.number }}</a></td><td>{{ o.name }}<div class="muted">{{ o.kw }} kW {{ o.system_type }}</div></td><td>Install {{ o.install_date }}</td><td><a class="btn sm sun" href="{{ url_for('order', oid=o.id) }}">Pack</a></td></tr>{% else %}<tr><td>Nothing waiting.</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>On the road ({{ transit|length }})</h2><table>{% for o in transit %}<tr><td><a href="{{ url_for('order', oid=o.id) }}">{{ o.number }}</a></td><td>{{ o.name }}<div class="muted">{{ o.address }}</div></td><td><a class="btn sm" href="{{ url_for('order', oid=o.id) }}">Open</a></td></tr>{% else %}<tr><td>No deliveries in transit.</td></tr>{% endfor %}</table></div></div>
+<div class="card scroll"><h2>Stock levels</h2><table><tr><th>Item</th><th>Tracking</th><th class="n">On hand</th><th class="n">Reserved</th><th class="n">Free</th><th>Alert</th></tr>
+{% for p in stock %}<tr><td>{{ p.name }}</td><td>{{ 'Serial' if p.tracked else 'Quantity' }}</td><td class="n">{{ p.onhand }}</td><td class="n">{{ '%g'|format(p.reserved) }}</td><td class="n">{{ '%g'|format(p.onhand - p.reserved) }}</td>
+<td>{% if p.onhand - p.reserved <= p.reorder_level %}<span class="badge b-bad">Reorder</span>{% endif %}</td></tr>{% endfor %}</table></div>
+{% if session.role in ('warehouse','admin') %}<div class="card"><h2>Receive stock from a supplier</h2>
+<form method="post" action="{{ url_for('warehouse_receive') }}"><div class="row c3"><div><label>Item</label><select name="product_id">{% for p in stock %}<option value="{{ p.id }}">{{ p.name }}{{ ' (serial)' if p.tracked }}</option>{% endfor %}</select></div>
+<div><label>Quantity</label><input name="qty" type="number" min="1"></div><div><label>Unit cost (₹)</label><input name="unit_cost" type="number" step="0.01"></div><div><label>Supplier</label><input name="supplier"></div></div>
+<label>Serial numbers (serial items only: one per line; leave empty to auto-generate)</label><textarea name="serials"></textarea>
+<p><button>Add to stock</button></p></form></div>{% endif %}{% endblock %}

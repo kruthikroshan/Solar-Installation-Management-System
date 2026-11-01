@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}SunPower ERP{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+{% if session.uid %}
+<header class="top"><a class="brand" href="{{ url_for('home') }}">&#9728; SunPower <span>ERP</span></a>
+<nav>{% for label, ep in nav_items %}<a href="{{ url_for(ep) }}" class="{{ 'on' if request.path.startswith(url_for(ep)) or (ep == 'admin_users' and request.path.startswith('/admin')) }}">{{ label }}</a>{% endfor %}</nav>
+<div class="who">{{ session.name }} <em>{{ role_label }}</em>
+<a href="{{ url_for('activity') }}" title="Notifications">Alerts{% if unread %}<b>{{ unread }}</b>{% endif %}</a>
+<a href="{{ url_for('logout') }}">Log out</a></div></header>
+{% endif %}
+<main>
+{% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
+{% block body %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>

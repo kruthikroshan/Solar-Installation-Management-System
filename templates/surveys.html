@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% from '_m.html' import badge with context %}{% block title %}Surveys{% endblock %}
+{% block body %}<div class="head"><div><h1>Site surveys</h1><p class="muted">Roof direction, tilt and cable distance decide whether a quote can go out.</p></div></div>
+<div class="card scroll"><table><tr><th>Date</th><th>Customer</th><th>Address</th><th>Request</th><th>Technician</th><th>Status</th><th></th></tr>
+{% for s in rows %}<tr><td>{{ s.scheduled_date }}</td><td>{{ s.name }}<div class="muted">{{ s.phone }}</div></td><td>{{ s.address }}</td><td>{{ s.kw }} kW {{ s.system_type }}</td><td>{{ s.tech }}</td><td>{{ badge(s.status) }}</td>
+<td><a class="btn sm {{ '' if s.status == 'Scheduled' else 'ghost' }}" href="{{ url_for('survey', sid=s.id) }}">{{ 'Start survey' if s.status == 'Scheduled' else 'View' }}</a></td></tr>
+{% else %}<tr><td colspan="7">No surveys assigned.</td></tr>{% endfor %}</table></div>{% endblock %}
