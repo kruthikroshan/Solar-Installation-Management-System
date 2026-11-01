@@ -10,7 +10,7 @@
 <a href="{{ url_for('activity') }}" title="Notifications">Alerts{% if unread %}<b>{{ unread }}</b>{% endif %}</a>
 <a href="{{ url_for('logout') }}">Log out</a></div></header>
 {% endif %}
-<main>
+<main class="{% block main_class %}{% endblock %}">
 {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
 {% block body %}{% endblock %}
 </main>

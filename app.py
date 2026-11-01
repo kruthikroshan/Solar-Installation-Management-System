@@ -36,7 +36,7 @@ NAV = {
     "accountant": [("Accounts", "accounts"), ("Orders", "orders")],
 }
 FINANCE = ("admin", "director", "accountant")
-PUBLIC = {"login", "enquiry", "enquiry_thanks", "warranty_lookup", "share_report", "static"}
+PUBLIC = {"login", "enquiry", "enquiry_thanks", "warranty_lookup", "share_report", "static", "landing", "home"}
 
 
 # ------------------------------------------------------------------ plumbing
@@ -154,7 +154,19 @@ def products_in_stock():
 # ------------------------------------------------------------------ auth + public
 @app.route("/")
 def home():
-    return redirect(url_for(HOME[session["role"]]))
+    if "uid" in session and request.args.get("view") != "landing":
+        return redirect(url_for(HOME[session["role"]]))
+    return landing()
+
+
+@app.route("/landing")
+def landing():
+    db = get_db()
+    pkgs = q("select * from packages where ptype in ('On-Grid', 'Off-Grid') order by ptype, kw")
+    packages = []
+    for p in pkgs:
+        packages.append(dict(p, price=S.package_price(db, p["id"])))
+    return render_template("landing.html", packages=packages, demo=dbm.DEMO_USERS, pw=dbm.DEMO_PASSWORD)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -185,7 +197,7 @@ def enquiry():
                 f.get("subsidy"), email=f.get("email", ""), source="Web form", notes=f.get("message", ""))
         if r:
             return redirect(url_for("enquiry_thanks"))
-    return render_template("enquiry.html", f=request.form)
+    return render_template("enquiry.html", f=request.values)
 
 
 @app.route("/enquiry/thanks")

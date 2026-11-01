@@ -28,3 +28,4 @@ instance/uploads/*
 # OS files
 .DS_Store
 Thumbs.db
+

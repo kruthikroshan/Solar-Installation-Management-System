@@ -1,0 +1,603 @@
+{% extends 'base.html' %}
+{% block title %}SunPower Solutions - Rooftop Solar Installation & Management System{% endblock %}
+{% block main_class %}landing-main{% endblock %}
+
+{% block body %}
+<div class="landing-page">
+
+  <!-- Optional Logged-in Banner -->
+  {% if session.uid %}
+  <div class="logged-in-bar">
+    <div class="l-container bar-flex">
+      <span>👋 You are currently signed in as <b>{{ session.name }}</b> ({{ role_label }}).</span>
+      <div class="bar-actions">
+        <a href="{{ url_for(HOME[session['role']]) }}" class="btn sm sun">Open My Workspace &rarr;</a>
+        <a href="{{ url_for('logout') }}" class="btn sm ghost">Log out</a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Public Top Navigation -->
+  <header class="landing-header">
+    <div class="l-container nav-flex">
+      <a href="{{ url_for('landing') }}" class="landing-brand">
+        <span class="sun-icon">&#9728;</span> SunPower <span>Solutions</span>
+      </a>
+      <nav class="landing-nav">
+        <a href="#packages">Packages</a>
+        <a href="#calculator">Savings Calculator</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#why-sunpower">Why Us</a>
+        <a href="#demo-portal">Role Portals</a>
+      </nav>
+      <div class="landing-cta-group">
+        <a href="{{ url_for('warranty_lookup') }}" class="btn sm ghost">Check Warranty</a>
+        <a href="{{ url_for('enquiry') }}" class="btn sm sun">Request Quote</a>
+        <a href="{{ url_for('login') }}" class="btn sm">Sign In</a>
+      </div>
+    </div>
+  </header>
+  {% endif %}
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="l-container hero-grid">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span>&#9728;</span> Rooftop Solar EPC &amp; Operations Platform
+        </div>
+        <h1>Turn Sunlight into Long-Term Energy Freedom</h1>
+        <p class="hero-sub">
+          One unified platform connecting homeowners, certified engineers, and field technicians. From precision shadow-free roof surveys and automated Bill of Materials (BOM) to QR-tracked serial dispatch, digital commissioning, and a 20-year performance guarantee.
+        </p>
+        <div class="hero-buttons">
+          <a href="{{ url_for('enquiry') }}" class="btn lg sun">⚡ Book Free Rooftop Assessment</a>
+          <a href="{{ url_for('warranty_lookup') }}" class="btn lg ghost-light">🛡️ Check Serial Warranty</a>
+          <a href="#demo-portal" class="btn lg ghost-light">🔐 Explore Role Portals</a>
+        </div>
+        <div class="hero-trust">
+          <span>✓ Zero-Cost Site Feasibility</span>
+          <span>✓ Up to ₹78,000 Govt. Subsidy</span>
+          <span>✓ 20-Year Tier-1 Panel Warranty</span>
+          <span>✓ 100% QR Serialised Assets</span>
+        </div>
+      </div>
+      <div class="hero-card-preview">
+        <div class="preview-box">
+          <div class="preview-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            <span class="preview-title">SunPower Operations Center</span>
+          </div>
+          <div class="preview-content">
+            <div class="preview-badge">Live System Status: Fully Operational</div>
+            <div class="preview-kpi-row">
+              <div class="pkpi">
+                <small>Average Efficiency</small>
+                <b>98.4%</b>
+              </div>
+              <div class="pkpi">
+                <small>Active Installs</small>
+                <b>12 Sites</b>
+              </div>
+              <div class="pkpi">
+                <small>Lifetime Warranty</small>
+                <b>240 Mo</b>
+              </div>
+            </div>
+            <div class="preview-flow">
+              <div class="flow-step done">1. Survey &amp; Shadow Analysis &check;</div>
+              <div class="flow-step done">2. Custom BOM &amp; Quote &check;</div>
+              <div class="flow-step active">3. QR Dispatch &amp; Power Test &bull;</div>
+              <div class="flow-step">4. Digital Sign-off &amp; Net Metering</div>
+            </div>
+            <div class="preview-cta">
+              <a href="{{ url_for('enquiry') }}" class="btn sm sun full-w">Request Site Survey in 60 Seconds</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metrics Strip -->
+  <section class="stats-strip">
+    <div class="l-container stats-grid">
+      <div class="stat-item">
+        <b>2,500+</b>
+        <span>Rooftops Energized</span>
+      </div>
+      <div class="stat-item">
+        <b>15+ MW</b>
+        <span>Clean Solar Capacity</span>
+      </div>
+      <div class="stat-item">
+        <b>20 Years</b>
+        <span>Panel Performance Guarantee</span>
+      </div>
+      <div class="stat-item">
+        <b>₹1.8 Cr+</b>
+        <span>Customer Energy Savings</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Solar Savings Calculator -->
+  <section id="calculator" class="section calc-section">
+    <div class="l-container">
+      <div class="section-head text-center">
+        <span class="eyebrow">Smart Estimator</span>
+        <h2>Calculate Your Solar Savings &amp; System Size</h2>
+        <p class="muted">Estimate your system capacity, roof space needed, and 25-year bill savings based on your monthly electricity bill.</p>
+      </div>
+
+      <div class="calc-wrapper">
+        <div class="calc-input-pane">
+          <label for="billSelector">Select Your Average Monthly Electricity Bill:</label>
+          <div class="bill-chips" id="billChips">
+            <button type="button" class="chip" data-bill="1500" data-kw="1">₹1,500 / mo</button>
+            <button type="button" class="chip" data-bill="3000" data-kw="2">₹3,000 / mo</button>
+            <button type="button" class="chip active" data-bill="5000" data-kw="3">₹5,000 / mo (Popular)</button>
+            <button type="button" class="chip" data-bill="8000" data-kw="4">₹8,000 / mo</button>
+            <button type="button" class="chip" data-bill="12000" data-kw="5">₹12,000 / mo</button>
+          </div>
+          <div class="calc-notes">
+            <p>💡 <b>Did you know?</b> Under the PM Surya Ghar Muft Bijli Yojana, residential consumers can receive up to <b>₹78,000</b> in direct central government subsidy for systems up to 3 kW!</p>
+          </div>
+        </div>
+
+        <div class="calc-results-pane">
+          <div class="result-card">
+            <div class="res-row">
+              <span>Recommended System:</span>
+              <b id="resKw" class="res-highlight">3 kW On-Grid</b>
+            </div>
+            <div class="res-row">
+              <span>Required Shadow-Free Roof:</span>
+              <b id="resArea">~300 sq. ft.</b>
+            </div>
+            <div class="res-row">
+              <span>Daily Solar Generation:</span>
+              <b id="resUnits">~12 - 15 Units / day</b>
+            </div>
+            <div class="res-row">
+              <span>Estimated Annual Savings:</span>
+              <b id="resAnnual" class="res-good">₹60,000 / year</b>
+            </div>
+            <div class="res-row">
+              <span>Est. Govt. Subsidy Benefit:</span>
+              <b id="resSubsidy" class="res-sun">₹78,000</b>
+            </div>
+            <div class="res-row total-row">
+              <span>25-Year Cumulative Savings:</span>
+              <b id="resLifetime">₹15,00,000+</b>
+            </div>
+            <div class="res-action">
+              <a id="calcEnquireBtn" href="{{ url_for('enquiry') }}?kw=3&system_type=On-Grid" class="btn sun full-w">
+                ⚡ Get Free Quote For 3 kW System
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Solar Packages -->
+  <section id="packages" class="section packages-section">
+    <div class="l-container">
+      <div class="section-head text-center">
+        <span class="eyebrow">Engineered Kits</span>
+        <h2>Curated Rooftop Solar Packages</h2>
+        <p class="muted">Pre-engineered packages with complete Bill of Materials (BOM) including Tier-1 Mono PERC modules, smart inverters, mounting structures, and AC/DC protection.</p>
+      </div>
+
+      <div class="pkg-category-title">
+        <h3>🔌 On-Grid Solar Packages (Best for Subsidies &amp; Zero Maintenance)</h3>
+        <p class="muted">Exports surplus electricity back to the grid via net metering. No battery replacement costs.</p>
+      </div>
+
+      <div class="pkg-grid">
+        {% for p in packages if p.ptype == 'On-Grid' %}
+        <div class="pkg-card {% if p.kw == 3 %}featured{% endif %}">
+          {% if p.kw == 3 %}<div class="ribbon">Most Popular</div>{% endif %}
+          <div class="pkg-top">
+            <span class="pkg-type-badge">{{ p.ptype }}</span>
+            <h4>{{ p.name }}</h4>
+            <div class="pkg-price">{{ p.price | inr }}</div>
+            <small class="muted">Includes turnkey installation &amp; BOM kit</small>
+          </div>
+          <ul class="pkg-features">
+            <li><b>Capacity:</b> {{ p.kw }} kW peak generation</li>
+            <li><b>Daily Power:</b> ~{{ p.kw * 4 }} - {{ p.kw * 5 }} units / day</li>
+            <li><b>Roof Area:</b> ~{{ p.kw * 100 }} sq. ft. shadow-free</li>
+            <li><b>Panels:</b> 540W Tier-1 Mono PERC (240 Mo Warranty)</li>
+            <li><b>Inverter:</b> Smart Grid-Tie Inverter (24 Mo Warranty)</li>
+            <li><b>Protections:</b> SPD, IP65 ACDB/DCDB, Earthing &amp; Arrestor</li>
+            <li><b>Subsidy:</b> Eligible for PM Surya Ghar Scheme</li>
+          </ul>
+          <div class="pkg-btn">
+            <a href="{{ url_for('enquiry') }}?kw={{ p.kw }}&system_type=On-Grid" class="btn full-w {% if p.kw == 3 %}sun{% else %}ghost{% endif %}">
+              Enquire for {{ p.kw }} kW
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="pkg-category-title mt-2">
+        <h3>🔋 Off-Grid Solar Packages (Uninterrupted Power Backup)</h3>
+        <p class="muted">Ideal for locations with frequent power cuts or remote farmhouses. Complete with deep-cycle battery bank storage.</p>
+      </div>
+
+      <div class="pkg-grid">
+        {% for p in packages if p.ptype == 'Off-Grid' %}
+        <div class="pkg-card">
+          <div class="pkg-top">
+            <span class="pkg-type-badge offgrid">{{ p.ptype }}</span>
+            <h4>{{ p.name }}</h4>
+            <div class="pkg-price">{{ p.price | inr }}</div>
+            <small class="muted">Includes hybrid inverter + solar batteries</small>
+          </div>
+          <ul class="pkg-features">
+            <li><b>Capacity:</b> {{ p.kw }} kW peak generation</li>
+            <li><b>Battery Storage:</b> 150Ah Deep Cycle Solar Batteries</li>
+            <li><b>Backup:</b> 100% independence from power cuts</li>
+            <li><b>Inverter:</b> Solar Hybrid MPPT Controller</li>
+            <li><b>Panels:</b> 540W High-Efficiency Modules</li>
+            <li><b>Wiring &amp; Safety:</b> Heavy-duty copper cables &amp; DC isolators</li>
+          </ul>
+          <div class="pkg-btn">
+            <a href="{{ url_for('enquiry') }}?kw={{ p.kw }}&system_type=Off-Grid" class="btn ghost full-w">
+              Enquire for {{ p.kw }} kW
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works (The 4-Step Journey) -->
+  <section id="how-it-works" class="section flow-section">
+    <div class="l-container">
+      <div class="section-head text-center">
+        <span class="eyebrow">Seamless Process</span>
+        <h2>How SunPower Delivers Your Solar Project</h2>
+        <p class="muted">Our end-to-end digital lifecycle eliminates guesswork, communication delays, and installation errors.</p>
+      </div>
+
+      <div class="journey-grid">
+        <div class="journey-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">📐</div>
+          <h4>Technical Site Survey</h4>
+          <p>A certified survey technician inspects your roof orientation, tilt, shadow-free area, and electricity distribution board to verify 100% feasibility before quoting.</p>
+        </div>
+
+        <div class="journey-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">📋</div>
+          <h4>Automated BOM &amp; Quotation</h4>
+          <p>Our engineering engine automatically generates the exact Bill of Materials (panels, inverter, breakers, stands, earthing). Advance milestone payment confirms the order.</p>
+        </div>
+
+        <div class="journey-card">
+          <div class="step-num">03</div>
+          <div class="step-icon">📦</div>
+          <h4>QR Dispatch &amp; On-Site Install</h4>
+          <p>Warehouse scans and binds every component serial number. Field technicians install within 48 hours, record live power test readings, and capture customer signatures.</p>
+        </div>
+
+        <div class="journey-card">
+          <div class="step-num">04</div>
+          <div class="step-icon">🛡️</div>
+          <h4>20-Year Guaranteed Care</h4>
+          <p>Your warranty starts automatically upon delivery. Any technical glitch or breakdown ticket is tracked by serial number for free replacements or quick servicing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why SunPower? Architecture & Quality Features -->
+  <section id="why-sunpower" class="section why-section">
+    <div class="l-container">
+      <div class="section-head text-center">
+        <span class="eyebrow">Enterprise Grade</span>
+        <h2>Why Solar EPCs &amp; Homeowners Rely on Us</h2>
+        <p class="muted">Engineered to eliminate the four major pitfalls of rooftop solar operations.</p>
+      </div>
+
+      <div class="features-2x2">
+        <div class="feat-box">
+          <div class="feat-icon">🚫</div>
+          <div>
+            <h4>Strict Survey Gate</h4>
+            <p>Sales executives are strictly prevented from issuing quotations until an on-site survey is completed and approved. No more inaccurate promises or mismatched roof sizes.</p>
+          </div>
+        </div>
+
+        <div class="feat-box">
+          <div class="feat-icon">🏷️</div>
+          <div>
+            <h4>100% Serialised Traceability</h4>
+            <p>Every single panel, inverter, and battery cell has a unique QR barcode. The dispatch scanner rejects wrong or duplicate items, ensuring each customer receives exact verified hardware.</p>
+          </div>
+        </div>
+
+        <div class="feat-box">
+          <div class="feat-icon">✍️</div>
+          <div>
+            <h4>Digital Proof of Commissioning</h4>
+            <p>Technicians cannot mark jobs complete without recording a live power test reading (kW), uploading installation photos, and obtaining an on-screen customer digital signature.</p>
+          </div>
+        </div>
+
+        <div class="feat-box">
+          <div class="feat-icon">📈</div>
+          <div>
+            <h4>Real-Time Job Profitability &amp; Subsidies</h4>
+            <p>Accountants and directors view real-time net margins per job (Invoice minus BOM cost, technician labor hours, and warranty claims), plus complete government subsidy progress tracking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Role-Based Demo Access Portal -->
+  <section id="demo-portal" class="section demo-section">
+    <div class="l-container">
+      <div class="section-head text-center">
+        <span class="eyebrow">Live Demonstration Portal</span>
+        <h2>Test All 8 Operational Roles (One-Click Sign In)</h2>
+        <p class="muted">Click any role below to automatically log in and experience the full workflow from that team member's perspective. Password for all accounts: <b>{{ pw }}</b>.</p>
+      </div>
+
+      <div class="demo-role-grid">
+        <!-- Admin -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge admin">Admin</span>
+            <h4>System Administrator</h4>
+          </div>
+          <p class="d-desc">Manage system users, adjust catalogue prices, configure BOM package templates, and oversee all operations.</p>
+          <div class="d-email">admin@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="admin@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Admin &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Director -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge director">Director</span>
+            <h4>Executive Director</h4>
+          </div>
+          <p class="d-desc">View executive KPIs, cash flow, per-job net profit margins, trend charts, CSV exports, and shareable reports.</p>
+          <div class="d-email">director@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="director@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Director &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Sales -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge sales">Sales</span>
+            <h4>Sales Executive</h4>
+          </div>
+          <p class="d-desc">Qualify incoming web leads, schedule rooftop surveys, generate BOM quotations, and confirm customer orders.</p>
+          <div class="d-email">sales@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="sales@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Sales &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Survey -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge survey">Survey</span>
+            <h4>Survey Technician</h4>
+          </div>
+          <p class="d-desc">Conduct on-site feasibility: record roof tilt, cable distance, shadow area, and approve or reject feasibility.</p>
+          <div class="d-email">survey@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="survey@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Survey Tech &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Warehouse -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge warehouse">Warehouse</span>
+            <h4>Warehouse Manager</h4>
+          </div>
+          <p class="d-desc">Scan component serial barcodes with camera, generate print-ready QR labels, and dispatch verified pick lists.</p>
+          <div class="d-email">warehouse@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="warehouse@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Warehouse &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Installer -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge installer">Installer</span>
+            <h4>Installation Technician</h4>
+          </div>
+          <p class="d-desc">Access digital job card on mobile, record start/end time, enter power test reading, upload site photos, and capture customer signature.</p>
+          <div class="d-email">installer@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="installer@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Installer &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Service -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge service">Service</span>
+            <h4>Service Manager</h4>
+          </div>
+          <p class="d-desc">Manage breakdown tickets, lookup serial numbers, check 20-year warranty status, and dispatch replacements.</p>
+          <div class="d-email">service@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="service@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Service Mgr &rarr;</button>
+          </form>
+        </div>
+
+        <!-- Accountant -->
+        <div class="demo-card">
+          <div class="d-header">
+            <span class="d-badge accountant">Accountant</span>
+            <h4>Finance &amp; Accounts</h4>
+          </div>
+          <p class="d-desc">Track milestone customer payments, business expenses, technician labor payroll, and government subsidy disbursements.</p>
+          <div class="d-email">accountant@sunpower.test</div>
+          <form method="post" action="{{ url_for('login') }}">
+            <input type="hidden" name="email" value="accountant@sunpower.test">
+            <input type="hidden" name="password" value="{{ pw }}">
+            <button class="btn sm sun full-w">Log In as Accountant &rarr;</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Frequently Asked Questions -->
+  <section class="section faq-section">
+    <div class="l-container">
+      <div class="section-head text-center">
+        <span class="eyebrow">Got Questions?</span>
+        <h2>Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <h4>How does the PM Surya Ghar government subsidy work?</h4>
+          <p>For residential rooftop installations, the government provides direct financial assistance up to ₹78,000 for systems up to 3 kW. Our team assists with discom inspection and net-metering paperwork to get the subsidy credited directly to your bank account.</p>
+        </div>
+        <div class="faq-item">
+          <h4>What is the difference between On-Grid and Off-Grid solar?</h4>
+          <p><b>On-Grid</b> systems remain connected to the electrical utility grid and feed surplus energy back via net-metering (reducing your electric bill to near zero). <b>Off-Grid</b> systems include a dedicated solar battery bank that provides complete autonomy during blackout hours.</p>
+        </div>
+        <div class="faq-item">
+          <h4>How do I claim a warranty if a component stops working?</h4>
+          <p>Simply use our public <a href="{{ url_for('warranty_lookup') }}">Warranty Checker</a> and enter the serial number printed on your panel or inverter. If the component is within the warranty window, a free replacement ticket is automatically assigned to our service engineers.</p>
+        </div>
+        <div class="faq-item">
+          <h4>How long does the entire installation process take?</h4>
+          <p>Once your site survey is approved and advance payment is recorded, warehouse dispatch and on-site rooftop mounting are completed in under 48 hours.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ready to Go Solar CTA Banner -->
+  <section class="cta-banner">
+    <div class="l-container text-center">
+      <h2>Ready to Cut Your Electricity Bill by up to 90%?</h2>
+      <p>Schedule a no-obligation rooftop feasibility survey with our solar engineering specialists today.</p>
+      <div class="cta-buttons">
+        <a href="{{ url_for('enquiry') }}" class="btn lg sun">Book Free Rooftop Assessment</a>
+        <a href="{{ url_for('warranty_lookup') }}" class="btn lg ghost-light">Check Existing Warranty</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modern Public Footer -->
+  <footer class="landing-footer">
+    <div class="l-container footer-grid">
+      <div class="f-col">
+        <div class="landing-brand f-brand">
+          <span class="sun-icon">&#9728;</span> SunPower <span>Solutions</span>
+        </div>
+        <p class="muted">
+          Pioneering clean rooftop solar engineering, turnkey EPC operations, and digital lifecycle management.
+        </p>
+        <p class="muted">&copy; 2026 SunPower Solutions. Built for the Odoo Hackathon.</p>
+      </div>
+      <div class="f-col">
+        <h5>Quick Links</h5>
+        <ul class="f-links">
+          <li><a href="#packages">Solar Packages</a></li>
+          <li><a href="#calculator">Savings Calculator</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#demo-portal">Role Demonstration</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h5>Customer Portals</h5>
+        <ul class="f-links">
+          <li><a href="{{ url_for('enquiry') }}">Request Solar Quote</a></li>
+          <li><a href="{{ url_for('warranty_lookup') }}">Check Equipment Warranty</a></li>
+          <li><a href="{{ url_for('login') }}">Staff &amp; Partner Sign In</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h5>Headquarters</h5>
+        <p class="muted">
+          SunPower Solutions EPC Hub<br>
+          Sector 4, Green Energy Tech Park<br>
+          Email: contact@sunpower.test<br>
+          Phone: +91 (800) 765-2700
+        </p>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Inline JavaScript for Solar Savings Calculator -->
+<script>
+(function() {
+  var chips = document.querySelectorAll('.bill-chips .chip');
+  var resKw = document.getElementById('resKw');
+  var resArea = document.getElementById('resArea');
+  var resUnits = document.getElementById('resUnits');
+  var resAnnual = document.getElementById('resAnnual');
+  var resSubsidy = document.getElementById('resSubsidy');
+  var resLifetime = document.getElementById('resLifetime');
+  var enquireBtn = document.getElementById('calcEnquireBtn');
+
+  var data = {
+    '1500': { kw: 1, area: '~100 sq. ft.', units: '~4 - 5 units/day', annual: '₹18,000 / year', subsidy: '₹30,000', life: '₹4,50,000+' },
+    '3000': { kw: 2, area: '~200 sq. ft.', units: '~8 - 10 units/day', annual: '₹36,000 / year', subsidy: '₹60,000', life: '₹9,000,00+' },
+    '5000': { kw: 3, area: '~300 sq. ft.', units: '~12 - 15 units/day', annual: '₹60,000 / year', subsidy: '₹78,000', life: '₹15,00,000+' },
+    '8000': { kw: 4, area: '~400 sq. ft.', units: '~16 - 20 units/day', annual: '₹96,000 / year', subsidy: '₹78,000', life: '₹24,00,000+' },
+    '12000': { kw: 5, area: '~500 sq. ft.', units: '~20 - 25 units/day', annual: '₹1,44,000 / year', subsidy: '₹78,000', life: '₹36,00,000+' }
+  };
+
+  chips.forEach(function(c) {
+    c.addEventListener('click', function() {
+      chips.forEach(function(x) { x.classList.remove('active'); });
+      c.classList.add('active');
+      var b = c.dataset.bill;
+      var d = data[b];
+      if (d) {
+        resKw.textContent = d.kw + ' kW On-Grid';
+        resArea.textContent = d.area;
+        resUnits.textContent = d.units;
+        resAnnual.textContent = d.annual;
+        resSubsidy.textContent = d.subsidy;
+        resLifetime.textContent = d.life;
+        enquireBtn.textContent = '⚡ Get Free Quote For ' + d.kw + ' kW System';
+        enquireBtn.href = "{{ url_for('enquiry') }}?kw=" + d.kw + "&system_type=On-Grid";
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

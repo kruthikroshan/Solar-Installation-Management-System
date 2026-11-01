@@ -57,7 +57,8 @@ All demo accounts use the standard password: **`demo123`**
 | **Accountant** | `accountant@sunpower.test` | `demo123` | `/accounts` | Invoices, customer payments, business expenses, technician labor payroll, government subsidy tracker |
 
 ### 🌐 Public Endpoints (No Authentication Required)
-- **Customer Inquiry Page**: `http://localhost:5000/enquiry` — Public web form where prospective clients submit rooftop solar inquiries.
+- **Interactive Landing Page**: `http://localhost:5000/` (or `/landing`) — Full-featured public homepage with Solar Savings Calculator, package catalogue, interactive 4-step workflow, and 1-click role demo login cards.
+- **Customer Inquiry Page**: `http://localhost:5000/enquiry` — Public web form where prospective clients submit rooftop solar inquiries (pre-filled when coming from the calculator or package cards).
 - **Warranty Verification**: `http://localhost:5000/warranty` — Public lookup tool for customers to check the active warranty status of their serial numbers.
 
 ---
